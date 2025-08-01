@@ -19,12 +19,7 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'a_very_secret_key_repla
 app.template_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app.static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
 
-# 在Vercel环境中使用长轮询，在本地使用WebSocket
-socketio = SocketIO(app, async_mode='threading', cors_allowed_origins="*", engineio_logger=True)
-
-# 设置更长的ping超时，以适应Vercel的无服务器环境
-if is_vercel:
-    socketio.server.eio.ping_timeout = 60
+socketio = SocketIO(app, async_mode='threading')
 
 online_users = {}
 
@@ -117,6 +112,13 @@ def upload_file():
 @app.route('/download/<filename>')
 def download_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
+
+// 添加favicon处理路由
+@app.route('/favicon.ico')
+@app.route('/favicon.png')
+def handle_favicon():
+    # 返回空响应，状态码204表示无内容
+    return '', 204
 
 @socketio.on('connect')
 def handle_connect():
