@@ -184,3 +184,4 @@ else:
     # 用于Vercel部署
     # 注意：在Vercel环境中，WebSocket可能不完全支持，
     # 可能需要使用长轮询或其他替代方案
+    app = app  # 这是一个占位语句，确保else块有内容
