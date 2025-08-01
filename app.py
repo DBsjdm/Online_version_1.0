@@ -15,7 +15,16 @@ app.config['UPLOAD_FOLDER'] = '/tmp/uploads' if is_vercel else 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024 if is_vercel else 64 * 1024 * 1024 * 1024  # Vercel限制为50MB，本地为64GB
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'a_very_secret_key_replace_with_your_own') # 从环境变量获取Secret Key
 
-socketio = SocketIO(app, async_mode='threading')
+# 确保模板和静态文件路径正确
+app.template_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
+app.static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
+
+# 在Vercel环境中使用长轮询，在本地使用WebSocket
+socketio = SocketIO(app, async_mode='threading', cors_allowed_origins="*", engineio_logger=True)
+
+# 设置更长的ping超时，以适应Vercel的无服务器环境
+if is_vercel:
+    socketio.server.eio.ping_timeout = 60
 
 online_users = {}
 
